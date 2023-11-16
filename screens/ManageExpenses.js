@@ -5,6 +5,7 @@ import { GlobalStyles } from "../constants/styles";
 import { useContext } from "react";
 import { ExpensesContext } from "../store/expenses-context";
 import ExpenseForm from "../components/ManageExpense/ExpenseForm";
+import { deleteExpense, storeExpense, updateExpense } from "../util/http";
 
 const ManageExpenses = ({navigation, route}) => {
     const expenseId = route.params?.expenseId;
@@ -18,8 +19,9 @@ const ManageExpenses = ({navigation, route}) => {
         })
     }, [navigation, isEditing]);
 
-    const deleteExpense = () => {
-        expensesCtx.deleteExpense({id: expenseId})
+    const onDelete = async () => {
+        await deleteExpense(expenseId);
+        expensesCtx.deleteExpense(expenseId);
         navigation.goBack();
     }
 
@@ -27,7 +29,7 @@ const ManageExpenses = ({navigation, route}) => {
         navigation.goBack();
     }
 
-    const onConfirm = (inputValues) => {
+    const onConfirm = async (inputValues) => {
         const expenseData = {
             amount: +inputValues.amount,
             date: new Date(inputValues.date),
@@ -35,7 +37,11 @@ const ManageExpenses = ({navigation, route}) => {
         }
         if (isEditing) {
             expensesCtx.updateExpense(expenseId, expenseData);
-        } else expensesCtx.addExpense(expenseData);
+            updateExpense(expenseId, expenseData);
+        } else {
+            const id = await storeExpense(expenseData);
+            expensesCtx.addExpense({...expenseData, id: id});
+        }
         navigation.goBack();
     }
 
@@ -45,7 +51,7 @@ const ManageExpenses = ({navigation, route}) => {
             {
                 isEditing &&
                 <View style={styles.deleteContainer}>
-                    <IconButton icon={"trash"} size={36} color={GlobalStyles.colors.error500} onPress={deleteExpense}/>
+                    <IconButton icon={"trash"} size={36} color={GlobalStyles.colors.error500} onPress={onDelete}/>
                 </View>
             }
         </View>

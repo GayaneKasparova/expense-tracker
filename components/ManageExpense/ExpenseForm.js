@@ -24,8 +24,8 @@ const ExpenseForm = ({defaultValues, onConfirm, onCancel}) => {
     });
 
     const inputChange = (inputIdentifier, enteredValue) => {
-        setInputs((curInputValues) => ({
-                ...curInputValues,
+        setInputs((curInputs) => ({
+                ...curInputs,
                 [inputIdentifier]: {
                     value: enteredValue,
                     isValid: true
@@ -41,7 +41,7 @@ const ExpenseForm = ({defaultValues, onConfirm, onCancel}) => {
             description: inputs.description.value
         }
 
-        const amountIsValid = !!isNaN(expenseData.amount) && expenseData.amount > 0;
+        const amountIsValid = !isNaN(expenseData.amount) && expenseData.amount > 0;
         const dateIsValid = expenseData.date.toString() !== 'Invalid Date';
         const descriptionIsValid = expenseData?.description?.trim().length > 0;
 
@@ -64,7 +64,8 @@ const ExpenseForm = ({defaultValues, onConfirm, onCancel}) => {
             })
             return;
         }
-        onConfirm(inputs)
+
+        onConfirm(expenseData);
     }
 
     const formIsInvalid = !inputs.amount.isValid || !inputs.date.isValid || !inputs.description.isValid;
@@ -103,7 +104,7 @@ const ExpenseForm = ({defaultValues, onConfirm, onCancel}) => {
                        textInputConfig={{
                            multiline: true,
                            onChangeText: (enteredValue) => inputChange('description', enteredValue),
-                           defaultValue: defaultValues.description,
+                           defaultValue: defaultValues?.description,
                            value: inputs.description.value,
                        }}
                 />
